@@ -1,6 +1,6 @@
 build_rules:
   - id: sca-demo
     finding_types: [oss_vuln]
-    threshold: 25
+    threshold: 20
     options:
       reachable: true
