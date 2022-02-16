@@ -15,6 +15,6 @@ pipelines:
           - shiftleft.yml
     - step:
         name: Install ShiftLeft and dependencies
+        image: shiftleft/inspect
         script:
-          - curl https://cdn.shiftleft.io/download/sl >/usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
           - sh sl-analysis.sh
