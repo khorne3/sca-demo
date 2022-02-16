@@ -1,0 +1,19 @@
+image: maven:3.3.9-jdk-8
+
+pipelines:
+  pull-requests:
+    '**':
+    - step:
+        name: Build the code
+        caches:
+          - maven
+        script: # Modify the commands below to build your repository.
+          - mvn clean package
+        artifacts:
+          - target/hello-shiftleft-0.0.1.jar
+          - sl-analysis.sh
+          - shiftleft.yml
+    - step:
+        name: shiftleft code analysis
+        script:
+          - sh sl-analysis.sh
