@@ -9,14 +9,20 @@ APP_NAME="$BITBUCKET_REPO_SLUG-BB"
 echo $APP_NAME
 
 # Analyze your code
-sl analyze \
---app "$APP_NAME" \
---version-id "$BITBUCKET_COMMIT" \
---tag branch="$BITBUCKET_BRANCH" \
---java \
---cpg \
---wait \
-"$SHIFTLEFT_APP_PATH"
+sl analyze --version-id "$BITBUCKET_COMMIT" --tag branch="$BITBUCKET_BRANCH" --app "$APP_NAME" --java --cpg --wait target/<path-to-your-app>.war
+
+# Check if this is running in a merge request
+if [ -n "$BITBUCKET_PR_ID" ]; then
+  echo "Pull request [$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
+
+  # Run check-analysis and save report to /tmp/check-analysis.md
+  echo "Starting ShiftLeft Check-Analysis..."
+  sl check-analysis \
+      --app "$SHIFTLEFT_APP_NAME" \
+      --report \
+      --report-file /tmp/check-analysis.md \
+      --source "tag.branch=master" \
+      --target "tag.branch=$BITBUCKET_BRANCH"
 
   BUILDRULECHECK=$?
   CHECK_ANALYSIS_OUTPUT=$(cat /tmp/check-analysis.md)
