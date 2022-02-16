@@ -16,8 +16,7 @@ pipelines:
     - step:
         name: Install ShiftLeft and dependencies
         script:
-          - curl https://cdn.shiftleft.io/download/sl >/usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
+          - apt-get update -y
           - apt-get install jq -y
-    - step: Run code analysis and build rules check
-      name: 
+          - curl https://cdn.shiftleft.io/download/sl >/usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
           - sh sl-analysis.sh
