@@ -1,19 +1,42 @@
 #!/bin/sh
-  
-echo "Got merge request $BITBUCKET_PR_ID for branch $BITBUCKET_BRANCH"
 
-# Install NG SAST
-curl https://www.shiftleft.io/download/sl-latest-linux-x64.tar.gz > /tmp/sl.tar.gz && tar -C /usr/local/bin -xzf /tmp/sl.tar.gz
+#### Review script environment variables and set defaults
+if [ ! -n "$SHIFTLEFT_APP_NAME" ]; then
+  SHIFTLEFT_APP_NAME="$BITBUCKET_REPO_SLUG-ML-PR"
+fi
 
-APP_NAME="$BITBUCKET_REPO_SLUG-BB"
-echo $APP_NAME
+if [ ! -n "$SHIFTLEFT_APP_PATH" ]; then
+  echo "Missing Environment Variable: \$SHIFTLEFT_APP_PATH"
+  exit 1
+fi
 
-# Analyze your code
-sl analyze --version-id "$BITBUCKET_COMMIT" --tag branch="$BITBUCKET_BRANCH" --app "$APP_NAME" --java --cpg --wait target/<path-to-your-app>.war
+echo "BITBUCKET_COMMIT=        \"$BITBUCKET_COMMIT\""
+echo "BITBUCKET_BRANCH=        \"$BITBUCKET_BRANCH\""
+echo "BITBUCKET_PR_ID=         \"$BITBUCKET_PR_ID\""
+echo "BITBUCKET_REPO_FULL_NAME=\"$BITBUCKET_REPO_FULL_NAME\""
+echo "BITBUCKET_REPO_SLUG=     \"$BITBUCKET_REPO_SLUG\""
+echo "BITBUCKET_WORKSPACE=     \"$BITBUCKET_WORKSPACE\""
+echo "SHIFTLEFT_APP_NAME=      \"$SHIFTLEFT_APP_NAME\""
+echo "SHIFTLEFT_APP_PATH=      \"$SHIFTLEFT_APP_PATH\""
 
+#### Analyze code
+echo "Starting ShiftLeft Analyze..."
+
+sl analyze \
+  --app "$SHIFTLEFT_APP_NAME" \
+  --version-id "$BITBUCKET_COMMIT" \
+  --tag branch="$BITBUCKET_BRANCH" \
+  --dotnet \
+  --csharp \
+  --cpg \
+  --oss-recursive \
+  --wait \
+  "$SHIFTLEFT_APP_PATH"
+
+#### Run build rules
 # Check if this is running in a merge request
 if [ -n "$BITBUCKET_PR_ID" ]; then
-  echo "Pull request [$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
+  echo "Pull request[$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
 
   # Run check-analysis and save report to /tmp/check-analysis.md
   echo "Starting ShiftLeft Check-Analysis..."
@@ -23,7 +46,7 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
       --report-file /tmp/check-analysis.md \
       --source "tag.branch=master" \
       --target "tag.branch=$BITBUCKET_BRANCH"
-
+      
   BUILDRULECHECK=$?
   CHECK_ANALYSIS_OUTPUT=$(cat /tmp/check-analysis.md)
   COMMENT_BODY=$(jq -n --arg body "$CHECK_ANALYSIS_OUTPUT" '{raw: $body}')
@@ -37,7 +60,7 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
 
   curl "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
     --verbose \
-    -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD_ALL" \
+    -u "$BITBUCKET_WORKSPACE:$APPPW2" \
     -H "Content-Type: application/json" \
     -d "{\"content\": $COMMENT_BODY}" 
 

@@ -14,6 +14,10 @@ pipelines:
           - sl-analysis.sh
           - shiftleft.yml
     - step:
-        name: shiftleft code analysis
+        name: Install ShiftLeft and dependencies
         script:
+          - curl https://cdn.shiftleft.io/download/sl >/usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
+          - apt-get install jq -y
+    - step: Run code analysis and build rules check
+      name: 
           - sh sl-analysis.sh
