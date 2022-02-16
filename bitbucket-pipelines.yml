@@ -1,4 +1,4 @@
-image: maven:3.3.9-jdk-8
+image: atlassian/default-image:3
 
 pipelines:
   pull-requests:
@@ -16,7 +16,5 @@ pipelines:
     - step:
         name: Install ShiftLeft and dependencies
         script:
-          - apt-get update -y
-          - apt-get install jq -y
           - curl https://cdn.shiftleft.io/download/sl >/usr/local/bin/sl && chmod a+rx /usr/local/bin/sl
           - sh sl-analysis.sh
