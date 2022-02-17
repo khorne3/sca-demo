@@ -26,10 +26,8 @@ sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
   --version-id "$BITBUCKET_COMMIT" \
   --tag branch="$BITBUCKET_BRANCH" \
-  --dotnet \
-  --csharp \
+  --java
   --cpg \
-  --oss-recursive \
   --wait \
   "$SHIFTLEFT_APP_PATH"
 

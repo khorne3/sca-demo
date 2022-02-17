@@ -12,7 +12,7 @@ pipelines:
           - sl-analysis.sh
           - shiftleft.yml
     - step:
-        name: shiftleft code analysis
+        name: Run ShiftLeft
         image: shiftleft/inspect
         script:
           - sh sl-analysis.sh
