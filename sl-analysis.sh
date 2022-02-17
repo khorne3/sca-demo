@@ -26,7 +26,7 @@ sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
   --version-id "$BITBUCKET_COMMIT" \
   --tag branch="$BITBUCKET_BRANCH" \
-  --java
+  --java \
   --wait \
   "$SHIFTLEFT_APP_PATH"
 
