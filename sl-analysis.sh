@@ -27,7 +27,6 @@ sl analyze \
   --version-id "$BITBUCKET_COMMIT" \
   --tag branch="$BITBUCKET_BRANCH" \
   --java \
-
   "$SHIFTLEFT_APP_PATH"
 
 #### Run build rules
