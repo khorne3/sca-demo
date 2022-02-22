@@ -19,10 +19,8 @@ echo "BITBUCKET_WORKSPACE=     \"$BITBUCKET_WORKSPACE\""
 echo "SHIFTLEFT_APP_NAME=      \"$SHIFTLEFT_APP_NAME\""
 echo "SHIFTLEFT_APP_PATH=      \"$SHIFTLEFT_APP_PATH\""
 
-SHIFTLEFT_ORG_ID="d64f2e4d-0d32-4c0b-bdae-891f693e2399"
-
 #### Analyze code
-echo "Starting NG SAST..."
+echo "Starting ShiftLeft Analyze..."
 
 sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
@@ -37,7 +35,7 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
   echo "Pull request[$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
 
   # Run check-analysis and save report to /tmp/check-analysis.md
-  echo "Starting sl check-nnalysis..."
+  echo "Starting ShiftLeft Check-Analysis..."
   sl check-analysis \
       --app "$SHIFTLEFT_APP_NAME" \
       --report \
