@@ -51,15 +51,15 @@ COMMENT_BODY=$(echo "$COMMENT_BODY" | jq ".raw += \"$NEW_FINDINGS \n  \n \"")
 
 echo "COMMENT_BODY: $COMMENT_BODY"
 if [ -n "$BUILDRULECHECK" ]; then
-    PR_COMMENT="Build rule failed; go to $URL for vulnerability list \n\n"  
+    PR_COMMENT="Build rule failed; for vulnerability list, go to $URL \n\n" 
     echo $PR_COMMENT
-    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
+    curl -XPOST "https://api.bitbucket.org/2.0/repositories/shiftleft/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
       -u "$BITBUCKET_WORKSPACE:$APPPW2" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}" 
     exit 1
 else
-    PR_COMMENT="Build rule succeeded; go to $URL for vulnerability list\n\n" 
+    PR_COMMENT="Build rule succeeded; for vulnerability list, go to $URL \n\n" 
     echo $PR_COMMENT
     curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
       -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD" \
