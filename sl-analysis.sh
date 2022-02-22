@@ -20,7 +20,7 @@ echo "SHIFTLEFT_APP_NAME=      \"$SHIFTLEFT_APP_NAME\""
 echo "SHIFTLEFT_APP_PATH=      \"$SHIFTLEFT_APP_PATH\""
 
 #### Analyze code
-echo "Starting ShiftLeft Analyze..."
+echo "Starting NG SAST..."
 
 sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
@@ -32,7 +32,7 @@ sl analyze \
 #### Run build rules
 # Check if this is running in a merge request
 if [ -n "$BITBUCKET_PR_ID" ]; then
-  echo "Pull request[$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
+  echo "Pull request $BITBUCKET_PR_ID issued for branch $BITBUCKET_BRANCH"
 
 # Run the build rules check 
 URL="https://www.shiftleft.io/findingsSummary/$SHIFTLEFT_APP_NAME?apps=$SHIFTLEFT_APP_NAME&isApp=1"
@@ -51,7 +51,7 @@ COMMENT_BODY=$(echo "$COMMENT_BODY" | jq ".raw += \"$NEW_FINDINGS \n  \n \"")
 
 echo "COMMENT_BODY: $COMMENT_BODY"
 if [ -n "$BUILDRULECHECK" ]; then
-    PR_COMMENT="Build rule failed, click here for vulnerability list - $URL\n\n"  
+    PR_COMMENT="Build rule failed; go to $URL for vulnerability list \n\n"  
     echo $PR_COMMENT
     curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
       -u "$BITBUCKET_WORKSPACE:$APPPW2" \
@@ -59,7 +59,7 @@ if [ -n "$BUILDRULECHECK" ]; then
       -d "{\"content\": $COMMENT_BODY}" 
     exit 1
 else
-    PR_COMMENT="Build rule succeeded, click here for vulnerability list! - $URL\n\n" 
+    PR_COMMENT="Build rule succeeded; go to $URL for vulnerability list\n\n" 
     echo $PR_COMMENT
     curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
       -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD" \
@@ -67,4 +67,5 @@ else
       -d "{\"content\": $COMMENT_BODY}"  
     exit 0
 fi
+
 fi
