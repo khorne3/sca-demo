@@ -53,7 +53,7 @@ echo "COMMENT_BODY: $COMMENT_BODY"
 if [ -n "$BUILDRULECHECK" ]; then
     PR_COMMENT="Build rule failed; for vulnerability list, go to $URL \n\n" 
     echo $PR_COMMENT
-    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
+    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
       -u "$BITBUCKET_WORKSPACE:$APPPW2" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}" 
