@@ -67,3 +67,4 @@ else
       -d "{\"content\": $COMMENT_BODY}"  
     exit 0
 fi
+fi
