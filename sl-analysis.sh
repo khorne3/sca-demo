@@ -44,7 +44,7 @@ BUILDRULECHECK=$(sl check-analysis --app "$SHIFTLEFT_APP_NAME" --config ~/shiftl
 COMMENT_BODY='{"raw":""}'
 COMMENT_BODY=$(echo "$COMMENT_BODY" | jq '.raw += "## NG SAST Analysis Findings \n "')
 
-NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$SHIFTLEFT_APP_NAME/scans/compare | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
+NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$SHIFTLEFT_APP_NAME/scans/compare" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
 
 echo "New findings..."
 echo $NEW_FINDINGS
@@ -54,17 +54,19 @@ COMMENT_BODY=$(echo "$COMMENT_BODY" | jq ".raw += \"$NEW_FINDINGS \n  \n \"")
 
 echo "COMMENT_BODY: $COMMENT_BODY"
 if [ -n "$BUILDRULECHECK" ]; then
-    COMMENT_BODY="Build rule failed; for vulnerability list, go to $URL \n\n" 
-    echo $COMMENT_BODY
-    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
-      -u "$BITBUCKET_WORKSPACE: $APPPW2" \
+    PR_COMMENT="Build rule failed, click here for vulnerability list - $URL\n\n"  
+    echo $PR_COMMENT
+    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments
+" \
+      -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}" 
     exit 1
 else
-    COMMENT_BODY="Build rule succeeded; for vulnerability list, go to $URL \n\n" 
-    echo $COMMENT_BODY
-    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
+    PR_COMMENT="Build rule succeeded, click here for vulnerability list! - $URL\n\n" 
+    echo $PR_COMMENT
+    curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments
+" \
       -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}"  
