@@ -35,14 +35,14 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
   echo "Pull request[$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
 
 # Run the build rules check 
-URL="https://www.shiftleft.io/findingsSummary/$APP_NAME?apps=$APP_NAME&isApp=1"
-BUILDRULECHECK=$(sl check-analysis --app "$APP_NAME" --config ~/shiftleft.yml --report --report-file /tmp/check-analysis.md)
+URL="https://www.shiftleft.io/findingsSummary/$SHIFTLEFT_APP_NAME?apps=$SHIFTLEFT_APP_NAME&isApp=1"
+BUILDRULECHECK=$(sl check-analysis --app "$SHIFTLEFT_APP_NAME" --config ~/shiftleft.yml --report --report-file /tmp/check-analysis.md)
 
 # Set up comment body for the merge request
 COMMENT_BODY='{"raw":""}'
 COMMENT_BODY=$(echo "$COMMENT_BODY" | jq '.raw += "## NG SAST Analysis Findings \n "')
 
-NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$APP_NAME/scans/compare?source=tag.branch=$BITBUCKET_BRANCH&target=tag.branch=$BITBUCKET_BRANCH" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
+NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$SHIFTLEFT_APP_NAME/scans/compare?source=tag.branch=$BITBUCKET_BRANCH&target=tag.branch=$BITBUCKET_BRANCH" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
 
 echo $NEW_FINDINGS
 
@@ -54,7 +54,7 @@ if [ -n "$BUILDRULECHECK" ]; then
     PR_COMMENT="Build rule failed, click here for vulnerability list - $URL\n\n"  
     echo $PR_COMMENT
     curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_REPO_FULL_NAME/pullrequests/$BITBUCKET_PR_ID/comments" \
-      -u "$BITBUCKET_WORKSPACE:$APP_PASSWORD" \
+      -u "$BITBUCKET_WORKSPACE:$APPPW2" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}" 
     exit 1
