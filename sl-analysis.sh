@@ -44,6 +44,7 @@ COMMENT_BODY=$(echo "$COMMENT_BODY" | jq '.raw += "## NG SAST Analysis Findings 
 
 NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$SHIFTLEFT_APP_NAME/scans/compare?source=tag.branch=$BITBUCKET_BRANCH&target=tag.branch=$BITBUCKET_BRANCH" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
 
+echo "New findings..."
 echo $NEW_FINDINGS
 
 COMMENT_BODY=$(echo "$COMMENT_BODY" | jq ".raw += \"### New findings \n  \n \"")
@@ -54,7 +55,7 @@ if [ -n "$BUILDRULECHECK" ]; then
     COMMENT_BODY="Build rule failed; for vulnerability list, go to $URL \n\n" 
     echo $COMMENT_BODY
     curl -XPOST "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
-      -u "$BITBUCKET_WORKSPACE:$APPPW2" \
+      -u "$BITBUCKET_WORKSPACE: $APPPW2" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $COMMENT_BODY}" 
     exit 1
