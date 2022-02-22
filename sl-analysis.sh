@@ -19,6 +19,8 @@ echo "BITBUCKET_WORKSPACE=     \"$BITBUCKET_WORKSPACE\""
 echo "SHIFTLEFT_APP_NAME=      \"$SHIFTLEFT_APP_NAME\""
 echo "SHIFTLEFT_APP_PATH=      \"$SHIFTLEFT_APP_PATH\""
 
+SHIFTLEFT_ORG_ID="d64f2e4d-0d32-4c0b-bdae-891f693e2399"
+
 #### Analyze code
 echo "Starting NG SAST..."
 
