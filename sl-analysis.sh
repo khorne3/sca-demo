@@ -4,7 +4,7 @@ echo "Got merge request $BITBUCKET_PR_ID for branch $BITBUCKET_BRANCH"
 
 # Review script environment variables and set defaults
 if [ ! -n "$SHIFTLEFT_APP_NAME" ]; then
-  SHIFTLEFT_APP_NAME="$YOUR-APPLICATION"
+  SHIFTLEFT_APP_NAME="BITBUCKETDEMO"
 fi
 
 if [ ! -n "$SHIFTLEFT_APP_PATH" ]; then
