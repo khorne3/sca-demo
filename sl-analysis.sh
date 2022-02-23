@@ -26,6 +26,7 @@ sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
   --version-id "$BITBUCKET_COMMIT" \
   --tag branch="$BITBUCKET_BRANCH" \
+  --force \
   --java \
   "$SHIFTLEFT_APP_PATH"
 
@@ -39,12 +40,12 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
   sl check-analysis \
       --app "$SHIFTLEFT_APP_NAME" \
       --report \
-      --report-file /tmp/check-analysis.md \
+      --report-file check-analysis.md \
       --source "tag.branch=master" \
       --target "tag.branch=$BITBUCKET_BRANCH"
       
   BUILDRULECHECK=$?
-  CHECK_ANALYSIS_OUTPUT=$(cat /tmp/check-analysis.md)
+  CHECK_ANALYSIS_OUTPUT=$(cat check-analysis.md)
   COMMENT_BODY=$(jq -n --arg body "$CHECK_ANALYSIS_OUTPUT" '{raw: $body}')
 
   echo "BUILDRULECHECK=               \"$BUILDRULECHECK\""
