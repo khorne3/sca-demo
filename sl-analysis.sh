@@ -2,6 +2,16 @@
   
 echo "Got merge request $BITBUCKET_PR_ID for branch $BITBUCKET_BRANCH"
 
+# Review script environment variables and set defaults
+if [ ! -n "$SHIFTLEFT_APP_NAME" ]; then
+  SHIFTLEFT_APP_NAME="$YOUR-APPLICATION"
+fi
+
+if [ ! -n "$SHIFTLEFT_APP_PATH" ]; then
+  echo "Missing Environment Variable: \$SHIFTLEFT_APP_PATH"
+  exit 1
+fi
+
 # Install NG SAST
 curl https://www.shiftleft.io/download/sl-latest-linux-x64.tar.gz > /tmp/sl.tar.gz && tar -C /usr/local/bin -xzf /tmp/sl.tar.gz
 
