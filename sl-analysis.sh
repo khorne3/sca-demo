@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#### Review script environment variables and set defaults
+# Review script environment variables and set defaults
 if [ ! -n "$SHIFTLEFT_APP_NAME" ]; then
-  SHIFTLEFT_APP_NAME="$BITBUCKET_REPO_SLUG-ML-PR"
+  SHIFTLEFT_APP_NAME="$YOUR-APPLICATION"
 fi
 
 if [ ! -n "$SHIFTLEFT_APP_PATH" ]; then
@@ -19,8 +19,8 @@ echo "BITBUCKET_WORKSPACE=     \"$BITBUCKET_WORKSPACE\""
 echo "SHIFTLEFT_APP_NAME=      \"$SHIFTLEFT_APP_NAME\""
 echo "SHIFTLEFT_APP_PATH=      \"$SHIFTLEFT_APP_PATH\""
 
-#### Analyze code
-echo "Starting ShiftLeft Analyze..."
+# Analyze code
+echo "Starting ShiftLeft CORE..."
 
 sl analyze \
   --app "$SHIFTLEFT_APP_NAME" \
@@ -30,12 +30,11 @@ sl analyze \
   --java \
   "$SHIFTLEFT_APP_PATH"
 
-#### Run build rules
-# Check if this is running in a merge request
+# Check if this script is running in a pull request
 if [ -n "$BITBUCKET_PR_ID" ]; then
   echo "Pull request[$BITBUCKET_PR_ID] issued for branch[$BITBUCKET_BRANCH]"
 
-  # Run check-analysis and save report to /tmp/check-analysis.md
+  # Run build rules (sl check-analysis)
   echo "Starting ShiftLeft Check-Analysis..."
   sl check-analysis \
       --app "$SHIFTLEFT_APP_NAME" \
@@ -45,10 +44,11 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
       --target "tag.branch=$BITBUCKET_BRANCH"
       
   BUILDRULECHECK=$?
-  CHECK_ANALYSIS_OUTPUT=$(cat check-analysis.md)
-  NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$APP_NAME/scans/compare?source=tag.branch=master&target=tag.branch=$BITBUCKET_BRANCH" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
-  echo "NEW_FINDINGS: \"$NEW_FINDINGS\""
 
+  # Get new findings info from the ShiftLeft API
+  NEW_FINDINGS=$(curl -H "Authorization: Bearer $SHIFTLEFT_ACCESS_TOKEN" "https://www.shiftleft.io/api/v4/orgs/$SHIFTLEFT_ORG_ID/apps/$APP_NAME/scans/compare?source=tag.branch=master&target=tag.branch=$BITBUCKET_BRANCH" | jq -c -r '.response.common | .? | .[] | "* [ID " + .id + "](https://www.shiftleft.io/findingDetail/" + .app + "/" + .id + "): " + "["+.severity+"] " + .title')
+
+  # Format comment body for the pull request
   COMMENT_BODY=$(jq -n --arg body "$CHECK_ANALYSIS_OUTPUT" '{raw: $body}')
   COMMENT_BODY=$(echo "$COMMENT_BODY" | jq ".raw += \"$NEW_FINDINGS \n  \n \"")
 
@@ -56,16 +56,14 @@ if [ -n "$BITBUCKET_PR_ID" ]; then
   echo "CHECK_ANALYSIS_OUTPUT=        \"$CHECK_ANALYSIS_OUTPUT\""
   echo "COMMENT_BODY=                 \"$COMMENT_BODY\""
 
-  # Post report as merge request comment
-  echo "Posting ShiftLeft Check-Analysis Results to Bitbucket PR Comments..."
+  # Post report as pull request comment
+  echo "Posting ShiftLeft results as a Bitbucket PR comment..."
 
   curl "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests/$BITBUCKET_PR_ID/comments" \
     --verbose \
     -u "$BITBUCKET_WORKSPACE:$APPPW2" \
     -H "Content-Type: application/json" \
     -d "{\"content\": $COMMENT_BODY}" 
-
-  echo ""
 
   if [ "$BUILDRULECHECK" -eq "1" ]; then
     PR_COMMENT="Build rule(s) failed..."
