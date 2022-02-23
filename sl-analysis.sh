@@ -6,7 +6,13 @@ echo "Got merge request $BITBUCKET_PR_ID for branch $BITBUCKET_BRANCH"
 curl https://www.shiftleft.io/download/sl-latest-linux-x64.tar.gz > /tmp/sl.tar.gz && tar -C /usr/local/bin -xzf /tmp/sl.tar.gz
 
 # Analyze your code
-sl analyze --version-id "$BITBUCKET_COMMIT" --tag branch="$BITBUCKET_BRANCH" --app "$APP_NAME" --java --cpg --wait "$SHIFTLEFT_APP_PATH"
+sl analyze \
+  --app "$SHIFTLEFT_APP_NAME" \
+  --version-id "$BITBUCKET_COMMIT" \
+  --tag branch="$BITBUCKET_BRANCH" \
+  --force \
+  --java \
+  "$SHIFTLEFT_APP_PATH"
 
 # Run the build rules check 
 URL="https://www.shiftleft.io/findingsSummary/$SHIFTLEFT_APP_NAME?apps=$SHIFTLEFT_APP_NAME&isApp=1"
