@@ -1,15 +1,41 @@
+source:
+  branch: master
 build_rules:
-  - id: build-break-rule
+  - id: build-rule-identifier
     finding_types:
       - vuln
-    severity:
+      - secret
+      - container
+    cvss_31_severity_ratings:
       - critical
-      - moderate
     type:
-      - XSS
-    threshold: 8
+      - SQL Injection
+      - Sensitive Data Leak
+    owasp_category:
+      - a03-2021-injection
+      - a02-2021-cryptographic-failures
+      - a03-2021-injection
+      - a04-2021-insecure-design
+      - a05-2021-security-misconfiguration
+      - a06-2021-vulnerable-and-outdated-components
+      - a07-2021-identification-and-authentication-failures
+      - a08-2021-software-and-data-integrity-failures
+      - a09-2021-security-logging-and-monitoring-failures
+    threshold: 1
+  - id: another-build-rule
+    cvss_31_severity_ratings:
+      - high
+      - medium
+      - low
+      - critical
+    threshold: 100
   - id: reachable-oss-vuln
     finding_types: [oss_vuln]
     options:
       reachable: true
-      num_findings: 25
+      num_findings: 10
+  - id: containers
+    finding_types: [container]
+    options:
+      reachable: false
+      num_findings: 2
