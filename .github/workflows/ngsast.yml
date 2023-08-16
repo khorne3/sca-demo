@@ -1,4 +1,4 @@
-name: Analyze with SCA Demo with NG SAST
+name: Analyze with SCA Demo with preZero
 
 on:
   push:
@@ -25,11 +25,7 @@ jobs:
     - name: Package with Maven
       run: mvn clean package
 
-    - name: Download the ShiftLeft CLI
-      run: |
-        curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
-
-    - name: Analyze app with NG SAST
+    - name: Analyze app with preZero
       run: ${GITHUB_WORKSPACE}/sl analyze --app sca-demo --wait --force --no-diagnostic target/hello-shiftleft-0.0.1.jar --java
       env:
         SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
